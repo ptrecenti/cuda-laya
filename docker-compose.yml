@@ -1,0 +1,32 @@
+services:
+  laya-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: laya-server:cu130
+    container_name: laya-server
+    network_mode: host
+    restart: unless-stopped
+    shm_size: "16gb"
+    deploy:
+      resources:
+        limits:
+          cpus: '12'
+          memory: "16gb"
+        reservations:
+          memory: "8gb"
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - ${HOME}/.cache/huggingface:/root/.cache/huggingface
+      - ${HOME}/.cache/receptron-laya:/root/.cache/receptron-laya
+    environment:
+      - HF_TOKEN=${HF_TOKEN:-}
+      - HF_HOME=/root/.cache/huggingface
+      - CUDA_VISIBLE_DEVICES=0
+      - LAYA_HOST=0.0.0.0
+      - LAYA_PORT=8090
+      - LAYA_DEVICE=cuda
+      - LAYA_PRELOAD=1
